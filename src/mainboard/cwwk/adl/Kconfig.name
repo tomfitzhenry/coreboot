@@ -5,3 +5,10 @@ config BOARD_CWWK_CW_ADL_4L_V1
 
 config BOARD_CWWK_CW_ADLNTB_1C2L_V3
 	bool "CW-ADLNTB-1C2L-V3.0"
+
+config BOARD_CWWK_CW_ADLN_NAS_TWINLAKE
+	bool "CW-ADLN-NAS (Twin Lake)"
+	help
+	  CW-ADLN-NAS Twin Lake variant validated on N355 systems.
+	  N150 and other SKUs in the same chassis family are not covered
+	  by this board option until they are independently verified.

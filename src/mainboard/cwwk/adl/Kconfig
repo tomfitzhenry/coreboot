@@ -3,21 +3,32 @@
 config BOARD_CWWK_ADL_N_COMMON
 	def_bool y
 	select BOARD_ROMSIZE_KB_16384
-	select CRB_TPM
-	select DRIVERS_UART_8250IO
 	select FSP_TYPE_IOT
 	select HAVE_ACPI_RESUME
 	select HAVE_ACPI_TABLES
-	select HAVE_INTEL_PTT
 	select INTEL_GMA_HAVE_VBT
 	select SOC_INTEL_ALDERLAKE_PCH_N
 	select SUPERIO_ITE_IT8613E
 
 config BOARD_CWWK_CW_ADL_4L_V1
 	select BOARD_CWWK_ADL_N_COMMON
+	select CRB_TPM
+	select DRIVERS_UART_8250IO
+	select HAVE_INTEL_PTT
 
 config BOARD_CWWK_CW_ADLNTB_1C2L_V3
 	select BOARD_CWWK_ADL_N_COMMON
+	select CRB_TPM
+	select DRIVERS_UART_8250IO
+	select HAVE_INTEL_PTT
+
+config BOARD_CWWK_CW_ADLN_NAS_TWINLAKE
+	select BOARD_CWWK_ADL_N_COMMON
+	select CRB_TPM
+	select HAVE_INTEL_PTT
+	select INTEL_LPSS_UART_FOR_CONSOLE
+	select NO_UART_ON_SUPERIO
+	select SOC_INTEL_TWINLAKE
 
 if BOARD_CWWK_ADL_N_COMMON
 
@@ -27,21 +38,38 @@ config MAINBOARD_DIR
 config VARIANT_DIR
 	default "cw-adl-4l-v1.0"      if BOARD_CWWK_CW_ADL_4L_V1
 	default "cw-adlntb-1c2l-v3.0" if BOARD_CWWK_CW_ADLNTB_1C2L_V3
+	default "cw-adln-nas-twinlake" if BOARD_CWWK_CW_ADLN_NAS_TWINLAKE
 
 config MAINBOARD_PART_NUMBER
 	default "CW-ADL-4L-V1.0"      if BOARD_CWWK_CW_ADL_4L_V1
 	default "CW-ADLNTB-1C2L-V3.0" if BOARD_CWWK_CW_ADLNTB_1C2L_V3
+	default "CW-ADLN-NAS"         if BOARD_CWWK_CW_ADLN_NAS_TWINLAKE
 
 config MAINBOARD_SMBIOS_PRODUCT_NAME
 	default "CW-ADL-4L-V1.0"      if BOARD_CWWK_CW_ADL_4L_V1
 	default "CW-X86-P5-V3"        if BOARD_CWWK_CW_ADLNTB_1C2L_V3
+	default "CW-ADLN-NAS"         if BOARD_CWWK_CW_ADLN_NAS_TWINLAKE
 
 config MAINBOARD_VERSION
 	default "CW-ADL-4L-V1.0"      if BOARD_CWWK_CW_ADL_4L_V1
 	default "CW-ADLNTB-1C2L-V3.0" if BOARD_CWWK_CW_ADLNTB_1C2L_V3
+	default "CW-ADLN-NAS"         if BOARD_CWWK_CW_ADLN_NAS_TWINLAKE
 
-# Override the default variant behavior, since the data.vbt is the same
+config DEVICETREE
+	default "devicetree_twl.cb" if BOARD_CWWK_CW_ADLN_NAS_TWINLAKE
+
+config UART_FOR_CONSOLE
+	default 0 if BOARD_CWWK_CW_ADLN_NAS_TWINLAKE
+
+config PAYLOAD_CONFIGFILE
+	string
+	default "\$(top)/src/mainboard/\$(MAINBOARDDIR)/config_seabios" \
+		if BOARD_CWWK_CW_ADLN_NAS_TWINLAKE && PAYLOAD_SEABIOS
+
+# The NAS Twin Lake variant uses a vendor-derived VBT specific to that board.
 config INTEL_GMA_VBT_FILE
+	default "src/mainboard/\$(MAINBOARDDIR)/variants/\$(VARIANT_DIR)/data.vbt" \
+		if BOARD_CWWK_CW_ADLN_NAS_TWINLAKE
 	default "src/mainboard/\$(MAINBOARDDIR)/data.vbt"
 
 config NO_POST

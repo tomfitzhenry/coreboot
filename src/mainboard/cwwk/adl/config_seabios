@@ -1,0 +1,3 @@
+# CW-ADLN-NAS has no legacy PS/2 controller.
+# Disable SeaBIOS PS/2 probing to avoid i8042 timeout warnings.
+# CONFIG_PS2PORT is not set
