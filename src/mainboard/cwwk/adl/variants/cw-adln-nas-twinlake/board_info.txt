@@ -1,0 +1,2 @@
+Board name: CW-ADLN-NAS
+Release year: 2026
