@@ -564,7 +564,7 @@ typedef struct _UPD_DATA_REGION {
 } UPD_DATA_REGION;
 
 #define FSP_IMAGE_ID    0x2450534657534224        /* '$BSWFSP$' */
-#define FSP_IMAGE_REV   0x01010700
+#define FSP_IMAGE_REV   0x01010800
 
 typedef struct _VPD_DATA_REGION {
 /** Offset 0x0000

@@ -16,7 +16,7 @@ comment "Intel FSP 1.1"
 config FSP_USE_REPO
 	bool "Use FSP binary from 3rdparty/fsp repo"
 	select HAVE_FSP_BIN
-	depends on SOC_INTEL_BRASWELL && !USE_GOOGLE_FSP
+	depends on SOC_INTEL_BRASWELL
 	default y
 
 config HAVE_FSP_BIN
@@ -39,7 +39,6 @@ config FSP_FILE
 
 config FSP_LOC
 	hex "Intel FSP Binary location in CBFS"
-	default 0xfff6e000 if SOC_INTEL_BRASWELL && USE_GOOGLE_FSP
 	default 0xfff20000 if SOC_INTEL_BRASWELL
 	default 0xffee0000 if SOC_INTEL_SKYLAKE
 	help
