@@ -1,0 +1,6 @@
+# Configuration used to build Google Terra (Asus Chromebook C202SA/C300SA)
+# with the public Braswell FSP.
+CONFIG_VENDOR_GOOGLE=y
+CONFIG_BOARD_GOOGLE_TERRA=y
+CONFIG_PAYLOAD_NONE=y
+CONFIG_ANY_TOOLCHAIN=y
