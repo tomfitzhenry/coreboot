@@ -30,12 +30,12 @@ CONFIG_EDK2_TAG_OR_REV="578c70bce241463ab1f3a3cfe11aaf1ed00d1906"
 # MdeModulePkg/Library/UefiBootManagerLib/BmBoot.c), writes them to BootOrder,
 # then walks BootOrder, silently skipping options whose load fails. The timeout
 # is only the window in which F2/Down may be pressed to open the interactive
-# Boot Manager; it never requires input and auto-proceeds. Set to 0 for zero
-# delay (PLATFORM_BOOT_TIMEOUT -> PcdPlatformBootTimeOut; see
+# Boot Manager; it never requires input and auto-proceeds. Set to 2 for a 2 s
+# hotkey window (PLATFORM_BOOT_TIMEOUT -> PcdPlatformBootTimeOut; see
 # payloads/external/edk2/Makefile:101-103). The interactive Boot Manager UI has
 # its own UTF-16 "press any key" (BootManagerUiLib); that path is not taken on
 # an automatic boot.
-CONFIG_EDK2_BOOT_TIMEOUT=0
+CONFIG_EDK2_BOOT_TIMEOUT=2
 
 # Serial console and SMMSTORE-backed variables (both work on the official path;
 # coreboot's edk2 Makefile passes -D VARIABLE_SUPPORT=SMMSTORE):
