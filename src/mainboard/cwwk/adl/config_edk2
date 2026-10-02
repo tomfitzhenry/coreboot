@@ -1,0 +1,25 @@
+# Working coreboot+edk2 payload configuration for CWWK CW-ADLN-NAS Twin Lake.
+#
+# Unlike config_seabios, this file is NOT consumed by the build: coreboot's
+# edk2 payload reads its options directly from Kconfig (see
+# payloads/external/edk2/Kconfig), so there is no PAYLOAD_CONFIGFILE hook for
+# edk2 and none is added here. This is a reference record of the settings that
+# produced the verified-working image; apply them before building, e.g. by
+# copying the saved full .config and running `make olddefconfig`.
+#
+# Working image: coreboot-superio-edk2-full.bin
+#   sha256 edd6e2ff48ad741c093d93ae319866570c6bfda86377c354ef7f15a8c88fe306
+#   built from coreboot 26.09-14-g9a82642a7cc1-dirty with the IT8613E SuperIO
+#   COM1 console, boots the owner's NVMe OS.
+#
+# Payload choice and the two options that are non-default for this board:
+CONFIG_PAYLOAD_EDK2=y
+CONFIG_EDK2_UEFIPAYLOAD=y
+CONFIG_EDK2_TAG_OR_REV="origin/uefipayload_2603"
+# CONFIG_EDK2_PS2_SUPPORT is not set
+
+# Console and variable storage required by the edk2 payload:
+CONFIG_DRIVERS_UART_8250IO=y
+CONFIG_SMMSTORE=y
+CONFIG_SMMSTORE_SIZE=0x80000
+CONFIG_SMMSTORE_BLOCK_SIZE=65536
