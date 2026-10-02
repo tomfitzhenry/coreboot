@@ -1,0 +1,30 @@
+diff --git a/MdeModulePkg/Library/UefiBootManagerLib/BmBoot.c b/MdeModulePkg/Library/UefiBootManagerLib/BmBoot.c
+index 5d614436e8..8290b462c8 100644
+--- a/MdeModulePkg/Library/UefiBootManagerLib/BmBoot.c
++++ b/MdeModulePkg/Library/UefiBootManagerLib/BmBoot.c
+@@ -2599,7 +2599,24 @@ EfiBootManagerRefreshAllBootOption (
+   //
+   for (Index = 0; Index < BootOptionCount; Index++) {
+     if (EfiBootManagerFindLoadOption (&BootOptions[Index], NvBootOptions, NvBootOptionCount) == -1) {
+-      EfiBootManagerAddLoadOptionVariable (&BootOptions[Index], (UINTN)-1);
++      UINTN                     InsertPosition;
++      EFI_DEVICE_PATH_PROTOCOL  *Node;
++
++      //
++      // Insert auto-created NVMe options at the front so an NVMe OS is tried
++      // before SATA/USB. All other options are appended as usual.
++      //
++      InsertPosition = (UINTN)-1;
++      for (Node = BootOptions[Index].FilePath; !IsDevicePathEnd (Node); Node = NextDevicePathNode (Node)) {
++        if ((DevicePathType (Node) == MESSAGING_DEVICE_PATH) &&
++            (DevicePathSubType (Node) == MSG_NVME_NAMESPACE_DP))
++        {
++          InsertPosition = 0;
++          break;
++        }
++      }
++
++      EfiBootManagerAddLoadOptionVariable (&BootOptions[Index], InsertPosition);
+       //
+       // Try best to add the boot options so continue upon failure.
+       //
