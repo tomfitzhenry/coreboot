@@ -72,6 +72,10 @@ chip soc/intel/alderlake
 
 	device domain 0 on
 		device ref igpu on end
+		# Native SATA is unusable here: the FSP enables the controller but
+		# implements no port (AHCI PI mask 0x0), most likely because the
+		# enabled-but-empty RP2 (00:1c.0) owns SATA0's combo lane. Disabling
+		# pcie_rp2 below is the untested fix, deliberately not pursued.
 		device ref sata on
 			register "sata_salp_support" = "1"
 			register "sata_ports_enable[0]" = "1"
