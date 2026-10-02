@@ -5,14 +5,18 @@
 # directly (payloads/external/edk2/Kconfig); there is no PAYLOAD_CONFIGFILE hook
 # for edk2. Apply these to a full .config and run `make olddefconfig`.
 #
-# Two upstream edk2 source patches are required (saved next to this file):
-#   edk2-nvme-first.patch      auto-created NVMe boot options are inserted first
+# Only ONE upstream edk2 source patch is applied:
 #   edk2-toolchain-cross.patch build IA32/X64 with the coreboot cross toolchains
-# See /home/dev/cwwk-build/deliverables-tianocore/README.md for the full story.
 #
-# Reproducible build: /home/dev/cwwk-build/rebuild-tianocore.sh
-#   (checks workspace/tianocore out at the pinned commit, applies both patches,
-#    then builds). Artifact: coreboot-superio-tianocore-nvme-full.bin.
+# edk2-nvme-first.patch is kept in this directory for reference only and is
+# deliberately NOT applied: the owner wants the stock, default boot order
+# (removable/USB before fixed/internal), not NVMe-first. See the README in
+# /home/dev/cwwk-build/deliverables-tianocore-usbfirst/.
+#
+# Reproducible build: /home/dev/cwwk-build/rebuild-tianocore-usbfirst.sh
+#   (checks workspace/tianocore out at the pinned commit, applies only the
+#    toolchain patch, removes the edk2 Build/ tree, then builds). Artifact:
+#   coreboot-superio-tianocore-usbfirst-full.bin.
 #
 # Upstream repo and pinned revision (contains the MTRR fix c4fdec0a83d6):
 CONFIG_PAYLOAD_EDK2=y
@@ -20,6 +24,18 @@ CONFIG_EDK2_UEFIPAYLOAD=y
 CONFIG_EDK2_REPO_OFFICIAL=y
 CONFIG_EDK2_REPOSITORY="https://github.com/tianocore/edk2"
 CONFIG_EDK2_TAG_OR_REV="578c70bce241463ab1f3a3cfe11aaf1ed00d1906"
+
+# No keypress is needed on any boot. Upstream BDS auto-enumerates the boot
+# options (removable first, then fixed; see BmEnumerateBootOptions in
+# MdeModulePkg/Library/UefiBootManagerLib/BmBoot.c), writes them to BootOrder,
+# then walks BootOrder, silently skipping options whose load fails. The timeout
+# is only the window in which F2/Down may be pressed to open the interactive
+# Boot Manager; it never requires input and auto-proceeds. Set to 0 for zero
+# delay (PLATFORM_BOOT_TIMEOUT -> PcdPlatformBootTimeOut; see
+# payloads/external/edk2/Makefile:101-103). The interactive Boot Manager UI has
+# its own UTF-16 "press any key" (BootManagerUiLib); that path is not taken on
+# an automatic boot.
+CONFIG_EDK2_BOOT_TIMEOUT=0
 
 # Serial console and SMMSTORE-backed variables (both work on the official path;
 # coreboot's edk2 Makefile passes -D VARIABLE_SUPPORT=SMMSTORE):
@@ -29,6 +45,8 @@ CONFIG_SMMSTORE=y
 CONFIG_SMMSTORE_SIZE=0x80000
 CONFIG_SMMSTORE_BLOCK_SIZE=65536
 
-# Fork-only options that are deliberately not set for the upstream payload:
-# CONFIG_EDK2_PRIORITIZE_INTERNAL (does not exist for EDK2_REPO_OFFICIAL)
+# Fork-only options that are deliberately not set for the upstream payload.
+# CONFIG_EDK2_PRIORITIZE_INTERNAL does not exist for EDK2_REPO_OFFICIAL
+# (Kconfig:233-238) and is therefore not set; upstream's built-in enumeration
+# order is removable/USB first, fixed/internal after, which is what we want.
 # CONFIG_EDK2_SECURE_BOOT_SUPPORT is not set
