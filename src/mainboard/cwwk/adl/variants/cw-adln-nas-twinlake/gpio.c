@@ -127,8 +127,8 @@ static const struct pad_config gpio_table[] = {
 	PAD_NC(GPP_H7, NONE),	/* GPIO */
 	PAD_NC(GPP_H8, NONE),	/* GPIO */
 	PAD_NC(GPP_H9, NONE),	/* GPIO */
-	PAD_CFG_NF(GPP_H10, NONE, DEEP, NF2),	/* UART0_RXD */
-	PAD_CFG_NF(GPP_H11, NONE, DEEP, NF2),	/* UART0_TXD */
+	PAD_NC(GPP_H10, NONE),	/* GPIO (UART0_RXD mux disabled; SuperIO COM1 console) */
+	PAD_NC(GPP_H11, NONE),	/* GPIO (UART0_TXD mux disabled; SuperIO COM1 console) */
 	PAD_NC(GPP_H12, NONE),	/* GPIO */
 	PAD_NC(GPP_H13, NONE),	/* GPIO */
 	PAD_NC(GPP_H14, NONE),	/* GPIO */
