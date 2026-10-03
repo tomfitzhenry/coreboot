@@ -25,8 +25,8 @@ chip soc/intel/alderlake
 	}"
 
 	register "pch_pcie_rp[PCH_RP(3)]" = "{
-		.clk_src = 5,
-		.clk_req = 5,
+		.clk_src = 3,
+		.clk_req = 3,
 		.flags = PCIE_RP_AER | PCIE_RP_CLK_REQ_DETECT | PCIE_RP_BUILT_IN,
 		.pcie_rp_aspm = ASPM_L0S_L1,
 	}"
@@ -53,15 +53,15 @@ chip soc/intel/alderlake
 	}"
 
 	register "pch_pcie_rp[PCH_RP(10)]" = "{
-		.clk_src = 3,
-		.clk_req = 3,
+		.clk_src = 4,
+		.clk_req = 4,
 		.flags = PCIE_RP_AER | PCIE_RP_CLK_REQ_DETECT | PCIE_RP_BUILT_IN,
 		.pcie_rp_aspm = ASPM_L0S_L1,
 	}"
 
 	register "pch_pcie_rp[PCH_RP(11)]" = "{
-		.clk_src = 4,
-		.clk_req = 4,
+		.clk_src = 5,
+		.clk_req = 5,
 		.flags = PCIE_RP_AER | PCIE_RP_CLK_REQ_DETECT | PCIE_RP_BUILT_IN,
 		.pcie_rp_aspm = ASPM_L0S_L1,
 	}"
