@@ -61,7 +61,8 @@ chip soc/intel/alderlake
 
 	register "pch_pcie_rp[PCH_RP(11)]" = "{
 		.clk_src = 4,
-		.flags = PCIE_RP_AER | PCIE_RP_CLK_REQ_UNUSED | PCIE_RP_BUILT_IN,
+		.clk_req = 4,
+		.flags = PCIE_RP_AER | PCIE_RP_CLK_REQ_DETECT | PCIE_RP_BUILT_IN,
 		.pcie_rp_aspm = ASPM_L0S,
 	}"
 
