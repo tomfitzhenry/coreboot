@@ -27,5 +27,47 @@
     };
   };
 
-  outputs = inputs: import ./util/nixshell/flake.nix inputs;
+  outputs =
+    inputs@{
+      self,
+      nixpkgs,
+      rust-overlay,
+      crane,
+      coreboot-blobs,
+      coreboot-vboot,
+      crabefi-src,
+      ...
+    }:
+    let
+      inherit (nixpkgs) lib;
+
+      systems = [ "x86_64-linux" ];
+      forAllSystems = lib.genAttrs systems;
+
+      # Keep the pre-existing `nix develop` SDK available.
+      legacy = import ./util/nixshell/flake.nix inputs;
+
+      mkSystem =
+        system:
+        let
+          pkgs = import nixpkgs {
+            inherit system;
+            overlays = [ (import rust-overlay) ];
+          };
+
+          crabefi = import ./pkgs/crabefi {
+            inherit pkgs crane crabefi-src;
+          };
+        in
+        {
+          packages = {
+            inherit crabefi;
+            default = crabefi;
+          };
+        };
+    in
+    legacy
+    // {
+      packages = forAllSystems (system: (mkSystem system).packages);
+    };
 }
