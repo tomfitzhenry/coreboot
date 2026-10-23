@@ -1,0 +1,118 @@
+{
+  "nodes": {
+    "coreboot-blobs": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1786698802,
+        "narHash": "sha256-3s2yxLYYycNjzxTKjIW39QuE802SLv8sxK5J7WOlEyI=",
+        "owner": "coreboot",
+        "repo": "blobs",
+        "rev": "c236894e3c1de8501f007a9bf61255684c89cd30",
+        "type": "github"
+      },
+      "original": {
+        "owner": "coreboot",
+        "repo": "blobs",
+        "rev": "c236894e3c1de8501f007a9bf61255684c89cd30",
+        "type": "github"
+      }
+    },
+    "coreboot-vboot": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1790844258,
+        "narHash": "sha256-x+t+Ps0bpL+5d9n5PDveKIAL3JqEa1ZOLBu1FggVm5g=",
+        "owner": "coreboot",
+        "repo": "vboot",
+        "rev": "f691f7675d46c8f4726146803543a095b68477c5",
+        "type": "github"
+      },
+      "original": {
+        "owner": "coreboot",
+        "repo": "vboot",
+        "rev": "f691f7675d46c8f4726146803543a095b68477c5",
+        "type": "github"
+      }
+    },
+    "crabefi-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1792636489,
+        "narHash": "sha256-CNjKUU10z4u/ds/VSBqkYNvJXiGSe0uDO3vqubtyhA0=",
+        "owner": "ArthurHeymans",
+        "repo": "CrabEFI",
+        "rev": "974ec2cac1f75947254c4822a690e0ac47e5270a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "ArthurHeymans",
+        "repo": "CrabEFI",
+        "rev": "974ec2cac1f75947254c4822a690e0ac47e5270a",
+        "type": "github"
+      }
+    },
+    "crane": {
+      "locked": {
+        "lastModified": 1792350552,
+        "narHash": "sha256-292lvpvxTGKryKxh3/3tcIVi85CwYGdl4oOi113Sob8=",
+        "owner": "ipetkov",
+        "repo": "crane",
+        "rev": "e675a36b7377bebe41d548388a2501cbb16d380d",
+        "type": "github"
+      },
+      "original": {
+        "owner": "ipetkov",
+        "repo": "crane",
+        "type": "github"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1792502884,
+        "narHash": "sha256-IoNisKcGbUjdd45qCqywGMCYmZ5EnkxezvLII0FWwNA=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "02c087f3fe673c9e317f206a627cb6b910336dbe",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "coreboot-blobs": "coreboot-blobs",
+        "coreboot-vboot": "coreboot-vboot",
+        "crabefi-src": "crabefi-src",
+        "crane": "crane",
+        "nixpkgs": "nixpkgs",
+        "rust-overlay": "rust-overlay"
+      }
+    },
+    "rust-overlay": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1792739799,
+        "narHash": "sha256-M2rr/yPbTHvgAzCyZ+zHJHflFM0XU7t42Sw2skA3TQM=",
+        "owner": "oxalica",
+        "repo": "rust-overlay",
+        "rev": "b0829a2cc9f7b596583331d78a942c1e5170d8a0",
+        "type": "github"
+      },
+      "original": {
+        "owner": "oxalica",
+        "repo": "rust-overlay",
+        "type": "github"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}
