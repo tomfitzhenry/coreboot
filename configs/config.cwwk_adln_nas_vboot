@@ -1,0 +1,6 @@
+CONFIG_VENDOR_CWWK=y
+CONFIG_BOARD_CWWK_CW_ADLN_NAS_TWINLAKE=y
+# Assemble microcode from the pinned 3rdparty/intel-microcode input.
+CONFIG_CPU_MICROCODE_CBFS_DEFAULT_BINS=y
+# The board's vboot FMAP reserves an SMMSTORE region for the UEFI payload.
+CONFIG_SMMSTORE=y

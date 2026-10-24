@@ -20,6 +20,14 @@
       url = "github:coreboot/vboot/f691f7675d46c8f4726146803543a095b68477c5";
       flake = false;
     };
+    coreboot-fsp = {
+      url = "github:coreboot/fsp/98426bfd958eb7397c474ff5d440dc9a1d146215";
+      flake = false;
+    };
+    coreboot-intel-microcode = {
+      url = "github:coreboot/intel-microcode/bdc92abe5c499c3fd7988b76a128d05c9120a520";
+      flake = false;
+    };
 
     crabefi-src = {
       url = "github:ArthurHeymans/CrabEFI/974ec2cac1f75947254c4822a690e0ac47e5270a";
@@ -35,6 +43,8 @@
       crane,
       coreboot-blobs,
       coreboot-vboot,
+      coreboot-fsp,
+      coreboot-intel-microcode,
       crabefi-src,
       ...
     }:
@@ -65,6 +75,7 @@
               defconfig,
               vboot ? false,
               useBlobs ? false,
+              useFsp ? false,
               extraConfig ? "",
             }:
             let
@@ -106,6 +117,13 @@
                 # coreboot generates a test-only GBB HWID with this script
                 # when CONFIG_GBB_HWID is empty.
                 patchShebangs util/chromeos/gen_test_hwid.sh
+              '' + lib.optionalString useFsp ''
+                # The Intel FSP and microcode submodules are not available in
+                # the Nix build sandbox; inject the pinned flake inputs.
+                rm -rf 3rdparty/fsp 3rdparty/intel-microcode
+                mkdir -p 3rdparty/fsp 3rdparty/intel-microcode
+                cp -rT ${coreboot-fsp} 3rdparty/fsp
+                cp -rT ${coreboot-intel-microcode} 3rdparty/intel-microcode
               '';
 
               configurePhase = ''
@@ -181,13 +199,22 @@ EOF
               CONFIG_DEFAULT_CONSOLE_LOGLEVEL_8=y
             '';
           };
+          cwwk-adln-nas-vboot = mkCoreboot {
+            name = "cwwk-adln-nas";
+            defconfig = "cwwk_adln_nas_vboot";
+            vboot = true;
+            useBlobs = true;
+            useFsp = true;
+          };
 
-          release = pkgs.runCommand "pcengines-apu2-apu3-crabefi-${self.shortRev or self.dirtyShortRev or "unknown"}" { } ''
+          release = pkgs.runCommand "coreboot-apu2-apu3-cwwk-crabefi-${self.shortRev or self.dirtyShortRev or "unknown"}" { } ''
             mkdir -p $out
             install -m644 ${apu2-vboot}/coreboot.rom $out/apu2-vboot-coreboot.rom
             install -m644 ${apu2-vboot}/config $out/apu2-vboot.config
             install -m644 ${apu3-vboot}/coreboot.rom $out/apu3-vboot-coreboot.rom
             install -m644 ${apu3-vboot}/config $out/apu3-vboot.config
+            install -m644 ${cwwk-adln-nas-vboot}/coreboot.rom $out/cwwk-adln-nas-vboot-coreboot.rom
+            install -m644 ${cwwk-adln-nas-vboot}/config $out/cwwk-adln-nas-vboot.config
             (cd $out && sha256sum *.rom *.config > SHA256SUMS)
           '';
 
@@ -199,6 +226,7 @@ EOF
               apu2-vboot
               apu3-vboot
               q35-vboot
+              cwwk-adln-nas-vboot
               release
               ;
             futility = pkgs.futility;

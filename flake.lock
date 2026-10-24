@@ -17,6 +17,40 @@
         "type": "github"
       }
     },
+    "coreboot-fsp": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1789439966,
+        "narHash": "sha256-hh6h4ZoV1CpY2xq7JFHk5foVLUgfZqPy6Gu1vVQ3LAY=",
+        "owner": "coreboot",
+        "repo": "fsp",
+        "rev": "98426bfd958eb7397c474ff5d440dc9a1d146215",
+        "type": "github"
+      },
+      "original": {
+        "owner": "coreboot",
+        "repo": "fsp",
+        "rev": "98426bfd958eb7397c474ff5d440dc9a1d146215",
+        "type": "github"
+      }
+    },
+    "coreboot-intel-microcode": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1790365479,
+        "narHash": "sha256-FR3MB7lA6gaJD/cbTTOxqrQaksr9jXpowtmuFWaHoTs=",
+        "owner": "coreboot",
+        "repo": "intel-microcode",
+        "rev": "bdc92abe5c499c3fd7988b76a128d05c9120a520",
+        "type": "github"
+      },
+      "original": {
+        "owner": "coreboot",
+        "repo": "intel-microcode",
+        "rev": "bdc92abe5c499c3fd7988b76a128d05c9120a520",
+        "type": "github"
+      }
+    },
     "coreboot-vboot": {
       "flake": false,
       "locked": {
@@ -85,6 +119,8 @@
     "root": {
       "inputs": {
         "coreboot-blobs": "coreboot-blobs",
+        "coreboot-fsp": "coreboot-fsp",
+        "coreboot-intel-microcode": "coreboot-intel-microcode",
         "coreboot-vboot": "coreboot-vboot",
         "crabefi-src": "crabefi-src",
         "crane": "crane",
