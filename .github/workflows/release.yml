@@ -1,6 +1,9 @@
-name: Build and publish APU2/APU3 vboot firmware
+name: Build and publish coreboot + CrabEFI images
 
 on:
+  push:
+    branches: [master]
+  pull_request:
   schedule:
     # Twice a month (1st and 15th) approximates a two-week cadence.
     - cron: "0 3 1,15 * *"
@@ -10,7 +13,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: apu2-apu3-crabefi-release
+  group: coreboot-release
   cancel-in-progress: false
 
 jobs:
@@ -33,24 +36,40 @@ jobs:
       - name: Verify vboot ROM structure and signatures
         run: nix flake check --max-jobs 2 --print-build-logs
 
+      - name: Upload images
+        uses: actions/upload-artifact@v4
+        with:
+          name: coreboot-images
+          path: release/*
+          if-no-files-found: error
+
       - name: Publish GitHub release
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          tag="apu2-apu3-crabefi-$(date -u +%Y-%m-%d)-$(git rev-parse --short HEAD)"
-          title="PC Engines APU2/APU3 coreboot + CrabEFI ${tag}"
+          tag="apu2-apu3-cwwk-crabefi-$(date -u +%Y-%m-%d)-$(git rev-parse --short HEAD)"
+          title="PC Engines APU2/APU3 and CWWK CW-ADLN-NAS coreboot + CrabEFI ${tag}"
           notes=$(cat <<'EOF'
-          coreboot firmware for the PC Engines APU2 and APU3, with CrabEFI as
-          the ELF payload. Only vboot (RO + RW_A + RW_B) images are published;
-          all images are 8 MiB and target the onboard SPI flash. PXE/iPXE and
-          the Memtest86+ secondary payload are disabled.
+          coreboot firmware for the PC Engines APU2/APU3 and the CWWK
+          CW-ADLN-NAS (Twin Lake), with CrabEFI as the ELF payload. Only vboot
+          (RO + RW_A + RW_B) images are published. The APU2/APU3 images are
+          8 MiB and target the onboard SPI flash. The CWWK image is 16 MiB and
+          uses the board-specific vboot-rwab.fmd layout. PXE/iPXE and the
+          Memtest86+ secondary payload are disabled.
+
+          WARNING: the CWWK CW-ADLN-NAS coreboot.rom is a 16 MiB
+          BIOS-region-only image, not a full SPI dump. The SI_DESC and SI_ME
+          regions defined in vboot-rwab.fmd are reserved but not populated,
+          so the first 0x600000 bytes are 0xff. Do NOT write this file over
+          the whole SPI chip. Flash it as the BIOS region, or combine it with
+          the board's own IFD/ME before writing the full chip.
 
           The vboot images are signed with vboot's test/development keys
-          (tests/devkeys), not production keys. They also set
-          CONFIG_VBOOT_MOCK_SECDATA=y and have no TPM enabled, so measured
-          boot and anti-rollback are not production-ready. Replace the keys,
-          disable mock secdata and provision a TPM before relying on verified
-          boot for deployment.
+          (tests/devkeys), not production keys. They also use mock secdata
+          and have no TPM enabled, so measured boot and anti-rollback are not
+          production-ready. Replace the keys, disable mock secdata and
+          provision a TPM before relying on verified boot for deployment.
 
           The archive contains the vboot ROMs, their build-time configs, and
           SHA256SUMS.
