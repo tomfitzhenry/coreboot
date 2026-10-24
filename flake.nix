@@ -59,6 +59,8 @@
             inherit pkgs crane crabefi-src;
           };
 
+          corebootPkgs = pkgs.extend (import ./overlays/coreboot-utils.nix);
+
           mkCoreboot =
             {
               name,
@@ -212,6 +214,7 @@ EOF
               q35-vboot
               release
               ;
+            coreboot-utils = corebootPkgs.coreboot-utils;
             default = apu2-vboot;
           };
 
@@ -227,6 +230,11 @@ EOF
     in
     legacy
     // {
+      overlays = {
+        default = import ./overlays/coreboot-utils.nix;
+        coreboot-utils = import ./overlays/coreboot-utils.nix;
+      };
+
       packages = forAllSystems (system: (mkSystem system).packages);
       checks = forAllSystems (system: (mkSystem system).checks);
     };
