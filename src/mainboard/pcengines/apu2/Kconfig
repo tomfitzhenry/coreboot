@@ -103,4 +103,28 @@ config AGESA_USE_1_0_0_4_HEADER
 	  revisions. This option removes the changes in headers introduced
 	  with AGESA 1.0.0.A to fit the 1.0.0.4 revision.
 
+config VBOOT
+	select VBOOT_NO_BOARD_SUPPORT
+	select VBOOT_STARTS_IN_ROMSTAGE
+	select VBOOT_VBNV_CMOS
+	select GBB_FLAG_DISABLE_LID_SHUTDOWN
+	select GBB_FLAG_DISABLE_PD_SOFTWARE_SYNC
+	select GBB_FLAG_DISABLE_EC_SOFTWARE_SYNC
+	select GBB_FLAG_DISABLE_FWMP
+	select RTC
+
+config FMDFILE
+	string
+	default "src/mainboard/\$(CONFIG_MAINBOARD_DIR)/vboot-rw-ab.fmd" if VBOOT
+
+config VBOOT_VBNV_OFFSET
+	hex
+	# cmos.layout puts vbnv at bit 728 (byte 91); vbnv_cmos.c adds 14 for
+	# the RTC registers, so the configured offset is byte 91 - 14 = 0x4d.
+	default 0x4d if VBOOT
+
+config RO_REGION_ONLY
+	string
+	default "spd.bin AGESA apu/amdfw" if VBOOT
+
 endif # BOARD_PCENGINES_APU2
