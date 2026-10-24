@@ -82,7 +82,8 @@
                 pkgs.coreboot-toolchain.i386
                 pkgs.pkg-config
                 pkgs.python3
-              ] ++ lib.optional vboot pkgs.openssl;
+                pkgs.futility
+              ];
 
               # amdfwtool needs libcrypto for the Avalon PSP blobs.
               buildInputs = [ pkgs.openssl ];
@@ -102,22 +103,9 @@
                 patchShebangs util/xcompile/xcompile
                 patchShebangs util/genbuild_h/genbuild_h.sh
               '' + lib.optionalString vboot ''
-                # vboot's futility is built in-tree and signs the RW slots.
-                # Its scripts and objects are copied from the pinned submodule,
-                # so make them writable before patching the interpreters.
-                chmod -R u+w 3rdparty/vboot
-                patchShebangs 3rdparty/vboot
                 # coreboot generates a test-only GBB HWID with this script
                 # when CONFIG_GBB_HWID is empty.
                 patchShebangs util/chromeos/gen_test_hwid.sh
-
-                # glibc 2.44 (C23) keeps const on strchr()/strrchr() results,
-                # which the pinned vboot assigns to `char *`. Keep the warning
-                # but do not let it abort the futility build.
-                substituteInPlace util/futility/Makefile.mk \
-                  --replace-fail \
-                    'WERROR="-Werror -Wno-deprecated-declarations"' \
-                    'WERROR="-Werror -Wno-deprecated-declarations -Wno-error=discarded-qualifiers"'
               '';
 
               configurePhase = ''
@@ -159,6 +147,7 @@ EOF
                 "CONFIG_ANY_TOOLCHAIN=y"
                 "UPDATED_SUBMODULES=1"
                 "KERNELVERSION=${self.shortRev or self.dirtyShortRev or "unknown"}"
+                "FUTILITY=${pkgs.futility}/bin/futility"
               ];
 
               installPhase = ''
@@ -212,6 +201,7 @@ EOF
               q35-vboot
               release
               ;
+            futility = pkgs.futility;
             default = apu2-vboot;
           };
 
