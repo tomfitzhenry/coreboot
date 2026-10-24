@@ -60,6 +60,7 @@ config HUDSON_PSP
 
 config AMDFW_CONFIG_FILE
 	string "AMD PSP Firmware config file"
+	default "src/southbridge/amd/pi/hudson/fw_avl_ftpm.cfg" if PSP_FTPM
 	default "src/southbridge/amd/pi/hudson/fw_avl.cfg" if CPU_AMD_PI_00730F01
 
 config HUDSON_XHCI_FWM_FILE
@@ -76,6 +77,17 @@ config AMD_PUBKEY_FILE
 	depends on HUDSON_PSP
 	string "AMD public Key"
 	default "3rdparty/blobs/southbridge/amd/avalon/PSP/AmdPubKey.bin" if CPU_AMD_PI_00730F01
+
+config PSP_FTPM
+	depends on HUDSON_PSP
+	bool "Enable PSP fTPM"
+	default n
+	select CRB_TPM
+	select MAINBOARD_HAS_TPM2
+	help
+	  Say yes to enable the PSP firmware TPM. coreboot will include the
+	  required PSP blobs, call the PSP mailbox and expose the fTPM through
+	  the CRB interface.
 
 config HUDSON_SATA_MODE
 	int "SATA Mode"

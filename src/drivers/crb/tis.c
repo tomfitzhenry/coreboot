@@ -98,7 +98,7 @@ static void crb_tpm_fill_ssdt(const struct device *dev)
 	/* Resources */
 	acpigen_write_name("_CRS");
 	acpigen_write_resourcetemplate_header();
-	acpigen_write_mem32fixed(1, TPM_CRB_BASE_ADDRESS, 0x5000);
+	acpigen_write_mem32fixed(1, crb_tpm_base_address(), 0x5000);
 
 	acpigen_write_resourcetemplate_footer();
 

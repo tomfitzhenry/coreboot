@@ -273,7 +273,13 @@ static void acpi_create_tpm2(acpi_header_t *header, void *unused)
 	u32 start_method;
 	uint8_t method_params[sizeof(tpm2->msp)] = { 0 };
 
-	if (tlcl_get_family() != TPM_2)
+	/* The PSP fTPM is usable without initializing the TPM stack first, so
+	 * generate the table based on the CRB state instead. */
+	if (tlcl_get_family() != TPM_2 && !CONFIG(PSP_FTPM))
+		return;
+
+	/* Do not expose a TIS TPM when the PSP fTPM is not available. */
+	if (CONFIG(PSP_FTPM) && !crb_tpm_is_active())
 		return;
 
 	const bool have_crb_tpm = CONFIG(CRB_TPM) || CONFIG(AMD_CRB_FTPM) ||
@@ -298,8 +304,15 @@ static void acpi_create_tpm2(acpi_header_t *header, void *unused)
 		control_area = crb_tpm_base_address() + 0x40;
 		start_method = ACPI_TPM2_SM_ACPI_START;
 	} else if (CONFIG(CRB_TPM) && crb_tpm_is_active()) {
-		control_area = crb_tpm_base_address() + 0x40;
-		start_method = ACPI_TPM2_SM_CRB;
+		if (CONFIG(PSP_FTPM)) {
+			/* The PSP fTPM has a different control area offset and
+			 * uses the ACPI start method. */
+			control_area = crb_tpm_base_address() + 0x10;
+			start_method = ACPI_TPM2_SM_ACPI_START;
+		} else {
+			control_area = crb_tpm_base_address() + 0x40;
+			start_method = ACPI_TPM2_SM_CRB;
+		}
 	} else if (CONFIG(AMPERE_CRB_FTPM) && crb_tpm_is_active()) {
 		control_area = crb_tpm_base_address();
 		start_method = ACPI_TPM2_SM_CRB_AND_ARM_SECURE_MONITOR;

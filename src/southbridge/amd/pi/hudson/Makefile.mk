@@ -54,6 +54,11 @@ add_opt_prefix=$(if $(call strip_quotes, $(1)), $(2) $(call strip_quotes, $(1)),
 OPT_HUDSON_XHCI_FWM_FILE=$(call add_opt_prefix, $(CONFIG_HUDSON_XHCI_FWM_FILE), --xhci)
 OPT_HUDSON_IMC_FWM_FILE=$(call add_opt_prefix, $(CONFIG_HUDSON_IMC_FWM_FILE), --imc)
 
+ifeq ($(CONFIG_PSP_FTPM),y)
+PSP_USE_PSPSECUREOS="--use-pspsecureos"
+endif
+OPT_PSP_USE_PSPSECUREOS=$(call strip_quotes, $(PSP_USE_PSPSECUREOS))
+
 $(obj)/amdfw.rom:	$(call strip_quotes, $(CONFIG_HUDSON_XHCI_FWM_FILE)) \
 			$(call strip_quotes, $(CONFIG_HUDSON_IMC_FWM_FILE)) \
 			$(call strip_quotes, $(CONFIG_AMD_PUBKEY_FILE)) \
@@ -64,6 +69,7 @@ $(obj)/amdfw.rom:	$(call strip_quotes, $(CONFIG_HUDSON_XHCI_FWM_FILE)) \
 	$(AMDFWTOOL) \
 		$(OPT_HUDSON_XHCI_FWM_FILE) \
 		$(OPT_HUDSON_IMC_FWM_FILE) \
+		$(OPT_PSP_USE_PSPSECUREOS) \
 		--flashsize $(CONFIG_ROM_SIZE) \
 		--location $(HUDSON_FWM_POSITION) \
 		--config $(CONFIG_AMDFW_CONFIG_FILE) \

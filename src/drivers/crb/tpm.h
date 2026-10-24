@@ -5,11 +5,8 @@
 #include <security/tpm/tss_errors.h>
 
 /* CRB driver */
-/* address of locality 0 (CRB) */
-#define TPM_CRB_BASE_ADDRESS        CONFIG_CRB_TPM_BASE_ADDRESS
-
-#define CRB_REG(LOCTY, REG)                                 \
-	(void *)(uintptr_t)(CONFIG_CRB_TPM_BASE_ADDRESS + (LOCTY << 12) + REG)
+#define CRB_REG(LOCTY, REG)					\
+	(void *)(uintptr_t)(crb_tpm_base_address() + (LOCTY << 12) + (REG))
 
 /* hardware registers */
 #define CRB_REG_LOC_STATE		0x00
@@ -70,3 +67,4 @@ bool crb_tpm_is_active(void);
 tis_sendrecv_fn crb_tis_probe(enum tpm_family *family);
 
 uintptr_t crb_tpm_base_address(void);
+void crb_tpm_set_base_address(uintptr_t base_addr);

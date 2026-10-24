@@ -33,6 +33,7 @@ static struct control_area {
 } control_area;
 
 static uint8_t cur_loc = 0;
+static uintptr_t crb_base = CONFIG_CRB_TPM_BASE_ADDRESS;
 
 /* Read Control Area Structure back  */
 static void crb_readControlArea(void)
@@ -243,7 +244,12 @@ size_t crb_tpm_process_command(const void *tpm2_command, size_t command_size,
 		return -1;
 	}
 
-	cur_loc = crb_activate_locality();
+	if (CONFIG(PSP_FTPM)) {
+		/* The PSP fTPM does not implement localities. */
+		cur_loc = 0;
+	} else {
+		cur_loc = crb_activate_locality();
+	}
 
 	// Check if CMD bit is cleared.
 	rc = crb_wait_for_reg32(CRB_REG(0, CRB_REG_START), 250, CRB_REG_START_START, 0x0);
@@ -353,5 +359,16 @@ bool crb_tpm_is_active(void)
  */
 uintptr_t crb_tpm_base_address(void)
 {
-	return CONFIG_CRB_TPM_BASE_ADDRESS;
+	return crb_base;
+}
+
+/*
+ * crb_tpm_set_base_address
+ *
+ * Override the CRB base address for TPMs that do not live at the default
+ * memory-mapped address, such as the PSP fTPM on family 16h.
+ */
+void crb_tpm_set_base_address(uintptr_t base_addr)
+{
+	crb_base = base_addr;
 }
