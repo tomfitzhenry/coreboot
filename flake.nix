@@ -185,6 +185,31 @@ EOF
             vboot = true;
             useBlobs = true;
           };
+          # Experimental: requires hardware validation. The fTPM NVRAM, ACPI,
+          # CRB and bootloader assumptions are unverified, and vboot still uses
+          # CONFIG_VBOOT_MOCK_SECDATA=y. Keep optional; not in release/default.
+          apu2-vboot-ftpm = mkCoreboot {
+            name = "pcengines-apu2-ftpm";
+            defconfig = "pcengines_apu2";
+            vboot = true;
+            useBlobs = true;
+            extraConfig = ''
+              CONFIG_PSP_FTPM=y
+              CONFIG_TPM2=y
+              CONFIG_VBOOT_MOCK_SECDATA=y
+            '';
+          };
+          apu3-vboot-ftpm = mkCoreboot {
+            name = "pcengines-apu3-ftpm";
+            defconfig = "pcengines_apu3";
+            vboot = true;
+            useBlobs = true;
+            extraConfig = ''
+              CONFIG_PSP_FTPM=y
+              CONFIG_TPM2=y
+              CONFIG_VBOOT_MOCK_SECDATA=y
+            '';
+          };
           q35-vboot = mkCoreboot {
             name = "qemu-q35";
             defconfig = "emulation_qemu_x86_q35_smm_tseg";
@@ -211,6 +236,8 @@ EOF
               crabefi
               apu2-vboot
               apu3-vboot
+              apu2-vboot-ftpm
+              apu3-vboot-ftpm
               q35-vboot
               release
               ;
