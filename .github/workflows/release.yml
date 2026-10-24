@@ -1,0 +1,66 @@
+name: Build and publish APU2/APU3 vboot firmware
+
+on:
+  schedule:
+    # Twice a month (1st and 15th) approximates a two-week cadence.
+    - cron: "0 3 1,15 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: apu2-apu3-crabefi-release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main
+
+      - name: Cache Nix builds
+        uses: Mic92/hestia/action@main
+
+      - name: Build vboot ROMs and checksums
+        run: nix build .#release --out-link release --max-jobs 2 --print-build-logs
+
+      - name: Verify vboot ROM structure and signatures
+        run: nix flake check --max-jobs 2 --print-build-logs
+
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="apu2-apu3-crabefi-$(date -u +%Y-%m-%d)-$(git rev-parse --short HEAD)"
+          title="PC Engines APU2/APU3 coreboot + CrabEFI ${tag}"
+          notes=$(cat <<'EOF'
+          coreboot firmware for the PC Engines APU2 and APU3, with CrabEFI as
+          the ELF payload. Only vboot (RO + RW_A + RW_B) images are published;
+          all images are 8 MiB and target the onboard SPI flash. PXE/iPXE and
+          the Memtest86+ secondary payload are disabled.
+
+          The vboot images are signed with vboot's test/development keys
+          (tests/devkeys), not production keys. They also set
+          CONFIG_VBOOT_MOCK_SECDATA=y and have no TPM enabled, so measured
+          boot and anti-rollback are not production-ready. Replace the keys,
+          disable mock secdata and provision a TPM before relying on verified
+          boot for deployment.
+
+          The archive contains the vboot ROMs, their build-time configs, and
+          SHA256SUMS.
+          EOF
+          )
+
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release upload "$tag" release/* --clobber
+          else
+            gh release create "$tag" release/* \
+              --title "$title" \
+              --notes "$notes"
+          fi

@@ -1,5 +1,5 @@
 {
-  description = "coreboot firmware with CrabEFI";
+  description = "coreboot PC Engines APU2/APU3 firmware with CrabEFI";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -171,6 +171,18 @@ EOF
               '';
             };
 
+          apu2-vboot = mkCoreboot {
+            name = "pcengines-apu2";
+            defconfig = "pcengines_apu2";
+            vboot = true;
+            useBlobs = true;
+          };
+          apu3-vboot = mkCoreboot {
+            name = "pcengines-apu3";
+            defconfig = "pcengines_apu3";
+            vboot = true;
+            useBlobs = true;
+          };
           q35-vboot = mkCoreboot {
             name = "qemu-q35";
             defconfig = "emulation_qemu_x86_q35_smm_tseg";
@@ -181,14 +193,26 @@ EOF
             '';
           };
 
+          release = pkgs.runCommand "pcengines-apu2-apu3-crabefi-${self.shortRev or self.dirtyShortRev or "unknown"}" { } ''
+            mkdir -p $out
+            install -m644 ${apu2-vboot}/coreboot.rom $out/apu2-vboot-coreboot.rom
+            install -m644 ${apu2-vboot}/config $out/apu2-vboot.config
+            install -m644 ${apu3-vboot}/coreboot.rom $out/apu3-vboot-coreboot.rom
+            install -m644 ${apu3-vboot}/config $out/apu3-vboot.config
+            (cd $out && sha256sum *.rom *.config > SHA256SUMS)
+          '';
+
         in
         {
           packages = {
             inherit
               crabefi
+              apu2-vboot
+              apu3-vboot
               q35-vboot
+              release
               ;
-            default = q35-vboot;
+            default = apu2-vboot;
           };
 
           checks = {
