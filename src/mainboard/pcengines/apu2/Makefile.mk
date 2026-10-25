@@ -11,6 +11,7 @@ bootblock-y += bootblock.c
 romstage-y += BiosCallOuts.c
 romstage-y += OemCustomize.c
 romstage-y += gpio_ftns.c
+romstage-$(CONFIG_VBOOT) += recovery.c
 
 ramstage-y += BiosCallOuts.c
 ramstage-y += OemCustomize.c
