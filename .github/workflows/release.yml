@@ -30,10 +30,34 @@ jobs:
       - name: Cache Nix builds
         uses: Mic92/hestia/action@main
 
+      - name: Run CrabEFI host tests
+        run: nix build .#crabefi-tests --no-link --print-build-logs
+
       - name: Build vboot ROMs and checksums
         run: nix build .#release --out-link release --max-jobs 2 --print-build-logs
 
-      - name: Verify vboot ROM structure and signatures
+      - name: Verify release artefacts and vboot signatures
+        run: |
+          set -euo pipefail
+          (cd release && sha256sum -c SHA256SUMS)
+          futility="$(nix build .#futility --no-link --print-out-paths)/bin/futility"
+          for rom in release/*.rom; do
+            case "$rom" in
+              *apu2-*|*apu3-*) expected=8388608 ;;
+              *cwwk-*) expected=16777216 ;;
+              *) echo "unexpected ROM: $rom" >&2; exit 1 ;;
+            esac
+            test "$(stat -c%s "$rom")" -eq "$expected"
+            echo "::group::futility verify $rom"
+            out="$("$futility" verify "$rom")"
+            printf '%s\n' "$out"
+            grep -q 'VBLOCK_A' <<<"$out"
+            grep -q 'VBLOCK_B' <<<"$out"
+            test "$(printf '%s\n' "$out" | grep -c 'Body verification succeeded')" -eq 2
+            echo "::endgroup::"
+          done
+
+      - name: Verify QEMU q35 vboot boot
         run: nix flake check --max-jobs 2 --print-build-logs
 
       - name: Upload images
