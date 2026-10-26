@@ -136,7 +136,7 @@
 # CONFIG_BUILD_IPXE is not set
 # CONFIG_MEMTEST_SECONDARY_PAYLOAD is not set
 CONFIG_PAYLOAD_ELF=y
-CONFIG_PAYLOAD_FILE="${crabefi}/lib/crabefi/crabefi.elf"
+CONFIG_PAYLOAD_FILE="${crabefi.package}/lib/crabefi/crabefi.elf"
 CONFIG_COMPRESSED_PAYLOAD_LZMA=y
 EOF
               '' + lib.optionalString useBlobs ''
@@ -221,8 +221,9 @@ EOF
         in
         {
           packages = {
+            crabefi = crabefi.package;
+            crabefi-tests = crabefi.tests;
             inherit
-              crabefi
               apu2-vboot
               apu3-vboot
               q35-vboot
@@ -234,6 +235,8 @@ EOF
           };
 
           checks = {
+            crabefi-tests = crabefi.tests;
+
             q35-vboot = pkgs.testers.runNixOSTest (
               import ./tests/q35-vboot.nix {
                 inherit pkgs;

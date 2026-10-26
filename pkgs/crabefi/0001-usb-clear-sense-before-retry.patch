@@ -1,0 +1,87 @@
+From 0c54b5d69790d8b0b0be6e8d93c99361349e674a Mon Sep 17 00:00:00 2001
+From: Tom Fitzhenry <tom@tom-fitzhenry.me.uk>
+Date: Sun, 25 Oct 2026 09:32:40 +0000
+Subject: [PATCH] fix(usb): clear sense data before retrying TEST UNIT READY
+
+A USB mass storage device may report CHECK CONDITION / UNIT ATTENTION for the first TEST UNIT READY after power-up. The init loop retried the command without issuing REQUEST SENSE, so devices that latch unit attention never became ready.
+
+Clear the sense data with the existing request_sense() before retrying. Add a regression test with a BOT peer that fails the first TEST UNIT READY and verifies the recovery path.
+---
+ crabefi-core/src/drivers/usb/mass_storage.rs  |  3 ++
+ .../src/drivers/usb/mass_storage_tests.rs     | 28 +++++++++++++++++++
+ 2 files changed, 31 insertions(+)
+
+diff --git a/crabefi-core/src/drivers/usb/mass_storage.rs b/crabefi-core/src/drivers/usb/mass_storage.rs
+index e7fc11f..bc85052 100644
+--- a/crabefi-core/src/drivers/usb/mass_storage.rs
++++ b/crabefi-core/src/drivers/usb/mass_storage.rs
+@@ -274,6 +274,9 @@ impl UsbMassStorage {
+                         error
+                     );
+                     readiness_error = error;
++                    // A device may report UNIT ATTENTION on its first command
++                    // after power-up. Clear the sense data before retrying.
++                    let _ = self.request_sense(controller);
+                     // Delay 100ms between retries
+                     time::delay_ms(100);
+                 }
+diff --git a/crabefi-core/src/drivers/usb/mass_storage_tests.rs b/crabefi-core/src/drivers/usb/mass_storage_tests.rs
+index 0cdaa81..c9ecc5a 100644
+--- a/crabefi-core/src/drivers/usb/mass_storage_tests.rs
++++ b/crabefi-core/src/drivers/usb/mass_storage_tests.rs
+@@ -14,6 +14,7 @@ struct BotPeer {
+     fail_reset: bool,
+     protect_write: bool,
+     short_write: bool,
++    unit_attention: bool,
+     commands: Vec<[u8; 16]>,
+     payloads: Vec<Vec<u8>>,
+ }
+@@ -31,6 +32,7 @@ impl Default for BotPeer {
+             fail_reset: false,
+             protect_write: false,
+             short_write: false,
++            unit_attention: false,
+             commands: Vec::new(),
+             payloads: Vec::new(),
+         }
+@@ -135,6 +137,10 @@ impl UsbController for BotPeer {
+         data[4..8].copy_from_slice(&command.tag.to_le_bytes());
+         data[8..12].fill(0);
+         let failed = match opcode {
++            scsi_cmd::TEST_UNIT_READY if self.unit_attention => {
++                self.unit_attention = false;
++                true
++            }
+             scsi_cmd::MODE_SENSE_6 => self.mode6.is_none(),
+             scsi_cmd::MODE_SENSE_10 => self.mode10.is_none(),
+             scsi_cmd::SYNCHRONIZE_CACHE_10 => !self.cache_supported,
+@@ -215,6 +221,28 @@ fn clean_read_only_devices_do_not_require_cache_commands() {
+     assert_eq!(peer.commands.len(), commands);
+ }
+ 
++#[test]
++fn init_requests_sense_and_recovers_from_unit_attention() {
++    let mut peer = BotPeer {
++        unit_attention: true,
++        ..Default::default()
++    };
++    let mut disk = device();
++    disk.init(&mut peer).unwrap();
++    assert_eq!(
++        peer.commands
++            .iter()
++            .filter(|command| command[0] == scsi_cmd::TEST_UNIT_READY)
++            .count(),
++        2
++    );
++    assert!(
++        peer.commands
++            .iter()
++            .any(|command| command[0] == scsi_cmd::REQUEST_SENSE)
++    );
++}
++
+ #[test]
+ fn writes_obey_controller_limits_and_reuse_the_bounce_buffer() {
+     let mut peer = BotPeer::default();
